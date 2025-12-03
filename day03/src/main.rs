@@ -22,9 +22,7 @@ fn solve_part_a(input: &Vec<String>) -> i64 {
 
         let second_high = batteries[first_high_pos + 1..].iter().max().unwrap();
 
-        joltage_output += (first_high.to_string() + &second_high.to_string())
-            .parse::<i64>()
-            .unwrap();
+        joltage_output += first_high * 10 + second_high
     });
 
     joltage_output
@@ -38,7 +36,7 @@ fn solve_part_b(input: &Vec<String>) -> i64 {
             .chars()
             .map(|battery| battery.to_string().parse::<i64>().unwrap())
             .collect::<Vec<i64>>();
-        let mut joltage = "".to_string();
+        let mut joltage = 0;
         let mut previous_high_pos = 0;
 
         for i in 0..12 {
@@ -53,9 +51,9 @@ fn solve_part_b(input: &Vec<String>) -> i64 {
                 + 1
                 + previous_high_pos;
 
-            joltage = joltage.to_string() + &next_possible_high.to_string();
+            joltage = joltage * 10 + next_possible_high;
         }
-        joltage_output += joltage.parse::<i64>().unwrap();
+        joltage_output += joltage;
     });
 
     joltage_output
