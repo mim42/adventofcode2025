@@ -18,15 +18,15 @@ fn parse_input(input: &Vec<String>) -> Vec<Vec<String>> {
 fn solve_part_a(input: &Vec<String>) -> i64 {
     let mut parsed_input = parse_input(input);
     let mut counter = 0;
-    for col in 0..parsed_input.len() - 1 {
-        for row in 0..parsed_input[0].len() {
-            if parsed_input[col][row] == "S" || parsed_input[col][row] == "|" {
-                if parsed_input[col + 1][row] == "^" {
-                    parsed_input[col + 1][row - 1] = "|".to_string();
-                    parsed_input[col + 1][row + 1] = "|".to_string();
+    for row in 0..parsed_input.len() - 1 {
+        for col in 0..parsed_input[0].len() {
+            if parsed_input[row][col] == "S" || parsed_input[row][col] == "|" {
+                if parsed_input[row + 1][col] == "^" {
+                    parsed_input[row + 1][col - 1] = "|".to_string();
+                    parsed_input[row + 1][col + 1] = "|".to_string();
                     counter += 1;
                 } else {
-                    parsed_input[col + 1][row] = "|".to_string()
+                    parsed_input[row + 1][col] = "|".to_string()
                 }
             }
         }
@@ -39,19 +39,19 @@ fn count_timelines(
     starting_point: (usize, usize),
     cache: &mut HashMap<(usize, usize), usize>,
 ) -> usize {
-    let (col, row) = starting_point;
+    let (row, col) = starting_point;
     match cache.get(&starting_point) {
         Some(k) => return *k,
         None => {
             let mut counter;
-            if col == map.len() - 1 {
+            if row == map.len() - 1 {
                 counter = 1;
             } else {
-                if map[col + 1][row] == "." {
-                    counter = count_timelines(map, (col + 1, row), cache);
+                if map[row + 1][col] == "." {
+                    counter = count_timelines(map, (row + 1, col), cache);
                 } else {
-                    counter = count_timelines(map, (col + 1, row + 1), cache)
-                        + count_timelines(map, (col + 1, row - 1), cache);
+                    counter = count_timelines(map, (row + 1, col + 1), cache)
+                        + count_timelines(map, (row + 1, col - 1), cache);
                 }
             }
             cache.insert(starting_point, counter);
