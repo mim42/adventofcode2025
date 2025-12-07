@@ -40,69 +40,59 @@ fn solve_part_a(input: &Vec<String>) -> i64 {
     total
 }
 
-fn parse_input_b(input: &Vec<String>) -> Vec<Vec<String>> {
-    let mut parsed_input = Vec::new();
-
-    let last_line = &input[input.len() - 1];
-    let last_line_vec = last_line
-        .chars()
-        .map(|c| c.to_string())
-        .collect::<Vec<String>>();
-    let mut positions = Vec::new();
-    for i in 0..last_line.len() {
-        if last_line_vec[i] == "+" || last_line_vec[i] == "*" {
-            positions.push(i);
+fn apply_operation(op: &String, numbers: &Vec<String>) -> i64 {
+    let mut answer = 0;
+    match op.as_str() {
+        "+" => {
+            let num: i64 = numbers.iter().map(|c| c.parse::<i64>().unwrap()).sum();
+            answer += num;
         }
-    }
-
-    input.iter().for_each(|line| {});
-
-    parsed_input
-}
-
-fn build_numbers(column: &Vec<String>) -> Vec<i64> {
-    let mut numbers = Vec::new();
-    let max_length = column
-        .iter()
-        .max_by(|a, b| a.len().cmp(&b.len()))
-        .unwrap()
-        .len();
-    for i in 0..max_length {
-        let mut number = "".to_string();
-        for item in &column[..column.len() - 1] {
-            match item.chars().nth(i) {
-                Some(num) => number = number + &num.to_string(),
-                None => (),
-            }
+        "*" => {
+            let num: i64 = numbers.iter().map(|c| c.parse::<i64>().unwrap()).product();
+            answer += num;
         }
-        println!("{}", number);
-        numbers.push(number.parse::<i64>().unwrap());
+        _ => (),
     }
-
-    numbers
+    answer
 }
 
 fn solve_part_b(input: &Vec<String>) -> i64 {
-    let parsed_input = parse_input(input);
-    let mut total = 0;
-    for row in 0..parsed_input[0].len() {
-        let mut math_row = parsed_input[0][row].parse::<i64>().unwrap();
-        let operator = &parsed_input[parsed_input.len() - 1][row];
-        let numbers = build_numbers(
-            &parsed_input
-                .iter()
-                .map(|c| c[row].clone())
-                .collect::<Vec<String>>(),
-        );
-        match operator.as_str() {
-            "+" => math_row = numbers.iter().sum(),
-            "*" => math_row = numbers.iter().product(),
-            _ => (),
+    let reversed_input = input
+        .iter()
+        .rev()
+        .map(|s| s.chars().map(|c| c.to_string()).collect::<Vec<String>>())
+        .collect::<Vec<Vec<String>>>();
+    let col_len = input.len();
+    let row_len = input[0].len();
+
+    let mut current_operator = &reversed_input[0][0];
+    let mut answer: i64 = 0;
+    let mut current_numbers: Vec<String> = Vec::new();
+    for row in 0..row_len {
+        // after every operation change we apply the operations
+        // (thats why we need to call this one more time at the end of the loop)
+        if (reversed_input[0][row] == "*" || reversed_input[0][row] == "+")
+            && current_numbers.len() > 0
+        {
+            answer += apply_operation(current_operator, &current_numbers);
+            current_operator = &reversed_input[0][row];
+            current_numbers.clear();
         }
 
-        total += math_row;
+        // building the numbers ignoring spaces and add them to a temp vec to calcualte their product or sum later
+        let mut current_number = "".to_string();
+        for col in 1..col_len {
+            if reversed_input[col][row] != " " {
+                current_number = reversed_input[col][row].clone() + &current_number;
+            }
+        }
+        if current_number != "" {
+            current_numbers.push(current_number);
+        }
     }
-    total
+    //apply one last time at the end
+    answer += apply_operation(current_operator, &current_numbers);
+    answer
 }
 
 fn main() {
